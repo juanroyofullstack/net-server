@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Build output
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# IDE
+.vscode/
+.vs/
+*.sln.iml
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# npm / Node (si aplica)
+node_modules/
+
+# Test results
+TestResults/
+
+# Build artifacts
+publish/

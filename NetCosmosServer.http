@@ -1,0 +1,6 @@
+@NetCosmosServer_HostAddress = http://localhost:5083
+
+GET {{NetCosmosServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
