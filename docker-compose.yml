@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  cosmos-db:
+    platform: linux/amd64
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    ports:
+      - "8081:8081"
+      - "10250:10250"
+      - "10251:10251"
+      - "10252:10252"
+      - "10253:10253"
+      - "10254:10254"
+      - "10255:10255"
+      - "10256:10256"
+    environment:
+      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 3
+      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
+    volumes:
+      - cosmos-data:/data/db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:8081/_dbs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cosmos-data:
