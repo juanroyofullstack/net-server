@@ -1,0 +1,156 @@
+# .NET Backend with CosmosDB - AI Development Rules
+
+## Project Context
+- **Framework**: ASP.NET Core
+- **Database**: Azure CosmosDB
+- **Architecture**: Clean Architecture with Repository Pattern
+- **Language**: C# 12+
+- **Testing**: xUnit + Moq
+
+## Code Style & Conventions
+
+### Naming Conventions
+- **Classes**: PascalCase (e.g., `UserService`, `ProductRepository`)
+- **Methods**: PascalCase (e.g., `GetUserById`, `CreateAsync`)
+- **Properties**: PascalCase (e.g., `UserId`, `CreatedAt`)
+- **Private fields**: _camelCase (e.g., `_cosmosClient`, `_logger`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `DEFAULT_PARTITION_KEY`)
+- **Interfaces**: IPascalCase (e.g., `IUserRepository`, `IUserService`)
+
+### File Structure
+```
+src/
+├── Controllers/          # API endpoints
+├── Services/            # Business logic
+├── Repositories/        # Data access layer
+├── Models/              # Domain models & DTOs
+├── Data/                # CosmosDB configuration
+├── Middleware/          # Custom middleware
+├── Exceptions/          # Custom exceptions
+└── Extensions/          # Extension methods
+
+tests/
+├── Unit/                # Unit tests
+├── Integration/         # Integration tests
+└── Fixtures/            # Test data & helpers
+```
+
+## CosmosDB Best Practices
+
+### Repository Pattern
+- All data access through `IRepository<T>`
+- Implement `GetAsync`, `CreateAsync`, `UpdateAsync`, `DeleteAsync`
+- Use partition keys explicitly
+- Always use `id` as document identifier
+
+### Example Repository Method
+```csharp
+public interface IRepository<T> where T : class
+{
+    Task<T> GetAsync(string id, string partitionKey);
+    Task<IEnumerable<T>> QueryAsync(string query, Dictionary<string, object> parameters);
+    Task<T> CreateAsync(T entity);
+    Task<T> UpdateAsync(T entity);
+    Task DeleteAsync(string id, string partitionKey);
+}
+```
+
+### Models
+- Use `[JsonProperty("id")]` for CosmosDB id
+- Include `Timestamp` for audit trail
+- Use `[PartitionKey]` for partition key property
+- Always include `type` discriminator for polymorphism
+
+## Async/Await Patterns
+- Always use `async/await` for I/O operations
+- Name async methods with `Async` suffix
+- Return `Task<T>` for methods that need results
+- Return `Task` for fire-and-forget operations
+- Use `ConfigureAwait(false)` in libraries
+
+## Error Handling
+- Create custom exceptions in `Exceptions/` folder
+- Use try-catch only for specific cases
+- Log exceptions with full context
+- Return meaningful error responses
+
+## Logging
+- Use `ILogger<T>` injected via DI
+- Log at appropriate levels: Debug, Information, Warning, Error
+- Include contextual information in log messages
+
+## Testing Requirements
+- Every public method should have unit tests
+- Use AAA pattern: Arrange, Act, Assert
+- Mock external dependencies (CosmosDB, APIs)
+- Name tests: `MethodName_Condition_ExpectedResult`
+- Aim for 80%+ code coverage
+
+## Dependency Injection
+- Register services in `Program.cs`
+- Use interface injection
+- Avoid service locator pattern
+- Use Scoped lifetime for DbContext-like services
+
+## Comments & Documentation
+- Explain WHY, not WHAT (code should be self-explanatory)
+- Use XML documentation for public APIs:
+```csharp
+/// <summary>
+/// Gets a user by their ID from CosmosDB
+/// </summary>
+/// <param name="userId">The unique user identifier</param>
+/// <param name="cancellationToken">Cancellation token</param>
+/// <returns>User entity or null if not found</returns>
+public async Task<User> GetUserByIdAsync(string userId, CancellationToken cancellationToken = default)
+```
+
+## AI Assistant Instructions
+
+### When Generating Code
+1. Always generate with proper error handling
+2. Include logging statements
+3. Add unit tests for logic
+4. Use dependency injection
+5. Follow the established patterns in the codebase
+6. Include XML documentation for public members
+
+### When Reviewing Code
+1. Check for missing error handling
+2. Verify async/await usage
+3. Ensure proper logging
+4. Validate CosmosDB partition key usage
+5. Look for hardcoded values (should be in configuration)
+6. Check test coverage
+
+### When Optimizing
+1. Consider CosmosDB RU consumption
+2. Batch operations when possible
+3. Use projections to fetch only needed fields
+4. Implement caching for frequently accessed data
+5. Use Change Feed for real-time updates
+
+## Security
+- Never commit secrets (use User Secrets or Key Vault)
+- Validate all inputs
+- Use parameterized queries for CosmosDB
+- Implement proper authentication/authorization
+- Use HTTPS only in production
+
+## Performance Considerations
+- Use async operations for all I/O
+- Implement pagination for large result sets
+- Use indexing appropriately in CosmosDB
+- Profile and benchmark critical paths
+- Cache frequently accessed data
+
+## Git Workflow
+- Branch naming: `feat/feature-name`, `fix/bug-name`, `chore/task-name`
+- Commit messages: Clear and descriptive
+- PR description: Explain changes and reasoning
+- Always add tests for new features
+
+## References
+- [ASP.NET Core Documentation](https://learn.microsoft.com/en-us/aspnet/core/)
+- [CosmosDB Best Practices](https://learn.microsoft.com/en-us/azure/cosmos-db/best-practices)
+- [Clean Code Principles](https://www.oreilly.com/library/view/clean-code-a/9780136083238/)
